@@ -1,4 +1,6 @@
-namespace CSharpApp.Core.Interfaces;
+namespace CSharpApp.Application.Interfaces;
+
+using CSharpApp.Core.Dtos;
 
 public interface IProductsService
 {

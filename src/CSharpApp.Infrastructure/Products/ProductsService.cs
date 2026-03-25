@@ -1,9 +1,5 @@
 namespace CSharpApp.Infrastructure.Products;
-
-using System.Text.Json;
 using CSharpApp.Core.Dtos;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 public class ProductsService : IProductsService
 {
@@ -16,5 +12,10 @@ public class ProductsService : IProductsService
     public Task<IReadOnlyCollection<Product>> GetProducts()
     {
        return _productsApiClient.GetAllAsync();
+    }
+
+    public Task<Product?> GetProduct(int id, CancellationToken cancellationToken = default)
+    {
+        return _productsApiClient.GetOneAsync(id, cancellationToken);
     }
 }

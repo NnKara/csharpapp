@@ -1,5 +1,6 @@
-using CSharpApp.Application.Helpers;
 using CSharpApp.Api.Configuration;
+using CSharpApp.Api.PerformanceMiddleware;
+using CSharpApp.Application.Helpers;
 using CSharpApp.Core.Dtos.Product;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,7 @@ builder.Services.AddDefaultConfiguration();
 builder.Services.AddHttpConfiguration();
 builder.Services.AddProblemDetails();
 builder.Services.AddApiVersioning();
+builder.Services.AddSingleton<RequestPerformanceMiddleware>();
 
 var app = builder.Build();
 
@@ -23,7 +25,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseMiddleware<RequestPerformanceMiddleware>();
 app.UseGlobalExceptionHandling();
+
 
 //app.UseHttpsRedirection();
 

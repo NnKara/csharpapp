@@ -1,10 +1,12 @@
 namespace CSharpApp.Application.Interfaces;
 
-using CSharpApp.Core.Dtos;
+using CSharpApp.Core.Dtos.Product;
 
 public interface IProductsService
 {
-    Task<IReadOnlyCollection<Product>> GetProducts();
+    Task<IReadOnlyCollection<Product>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    Task<Product?> GetProduct(int id, CancellationToken cancellationToken = default);
+    Task<Product?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+
+    Task<Product> CreateAsync(CreateProductRequest request, CancellationToken cancellationToken = default);
 }

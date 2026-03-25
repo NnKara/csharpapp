@@ -1,4 +1,4 @@
-namespace CSharpApp.Core.Dtos;
+namespace CSharpApp.Core.Dtos.Category;
 
 public sealed class Category
 {

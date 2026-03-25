@@ -1,4 +1,4 @@
-﻿using CSharpApp.Core.Dtos;
+﻿using CSharpApp.Core.Dtos.Product;
 
 namespace CSharpApp.Application.Interfaces
 {
@@ -6,6 +6,8 @@ namespace CSharpApp.Application.Interfaces
     {
         Task<IReadOnlyCollection<Product>> GetAllAsync(CancellationToken cancellationToken = default);
 
-        Task<Product?> GetOneAsync(int id, CancellationToken cancellationToken = default);
+        Task<Product?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+
+        Task<Product> CreateAsync(CreateProductRequest request, CancellationToken cancellationToken = default);
     }
 }

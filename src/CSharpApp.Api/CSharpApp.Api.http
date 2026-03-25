@@ -10,3 +10,44 @@ GET {{HostAddress}}/api/{{Version}}/getproduct/17
 Accept: application/json
 
 ###
+//Valid create (excpected 200)
+
+POST {{HostAddress}}/api/{{Version}}/createproduct
+Content-Type: application/json
+Accept: application/json
+{
+  "title": "New ProductTest1",
+  "price": 10,
+  "description": "A description",
+  "categoryId": 1,
+  "images": ["https://i.imgur.com/QkIa5tT.jpeg"]
+}
+
+###
+//Invalid create (expected 400 with field missing errros)
+
+POST {{HostAddress}}/api/{{Version}}/createproduct
+Content-Type: application/json
+Accept: application/json
+{
+  "title": "",
+  "price": 0,
+  "description": "",
+  "categoryId": 0,
+  "images": []
+}
+
+###
+//Images with empty string (excpected 400 with image error)
+
+POST {{HostAddress}}/api/{{Version}}/createproduct
+Content-Type: application/json
+Accept: application/json
+{
+  "title": "New Product 2026-03-25-1117",
+  "price": 10,
+  "description": "A description",
+  "categoryId": 1,
+  "images": ["   "]
+}
+

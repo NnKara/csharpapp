@@ -1,5 +1,6 @@
 namespace CSharpApp.Infrastructure.Products;
-using CSharpApp.Core.Dtos;
+
+using CSharpApp.Core.Dtos.Product;
 
 public class ProductsService : IProductsService
 {
@@ -9,13 +10,19 @@ public class ProductsService : IProductsService
         _productsApiClient = productsApiClient;
     }
 
-    public Task<IReadOnlyCollection<Product>> GetProducts()
+    public Task<IReadOnlyCollection<Product>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-       return _productsApiClient.GetAllAsync();
+       return _productsApiClient.GetAllAsync(cancellationToken);
     }
 
-    public Task<Product?> GetProduct(int id, CancellationToken cancellationToken = default)
+    public Task<Product?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return _productsApiClient.GetOneAsync(id, cancellationToken);
+        return _productsApiClient.GetByIdAsync(id, cancellationToken);
     }
+
+    public Task<Product> CreateAsync(CreateProductRequest request, CancellationToken cancellationToken = default)
+    {
+        return _productsApiClient.CreateAsync(request, cancellationToken);
+    }
+
 }

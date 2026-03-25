@@ -1,3 +1,4 @@
+using CSharpApp.Infrastructure.JwtAuth;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
@@ -10,24 +11,33 @@ public static class HttpConfiguration
     {
         var serviceProvider = services.BuildServiceProvider();
         var httpSettings = serviceProvider.GetRequiredService<IOptions<HttpClientSettings>>().Value;
+        var restApiSettings = serviceProvider.GetRequiredService<IOptions<RestApiSettings>>().Value;
 
-        services.AddHttpClient<IProductsApiClient, ProductsApiClient>((sp, client) =>
+        services.AddHttpClient(ExternalApiHttpClients.AuthOnly,(_, client) =>
         {
-            var restApiSettings = sp.GetRequiredService<IOptions<RestApiSettings>>().Value;
-
             client.BaseAddress = new Uri(restApiSettings.BaseUrl!);
             client.Timeout = TimeSpan.FromSeconds(httpSettings.TimeoutSeconds);
+        })
+        .SetHandlerLifetime(TimeSpan.FromMinutes(httpSettings.LifeTime));
 
-        }).SetHandlerLifetime(TimeSpan.FromMinutes(httpSettings.LifeTime)).AddPolicyHandler((sp,_) =>
+        services.AddSingleton<IAuthTokenProvider, AuthTokenProvider>();
+        services.AddTransient<BearerTokenHandler>();
 
-        { 
-            var httpSettings = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;
-            
+        services.AddHttpClient<IProductsApiClient, ProductsApiClient>((_, client) =>
+        {
+            client.BaseAddress = new Uri(restApiSettings.BaseUrl!);
+            client.Timeout = TimeSpan.FromSeconds(httpSettings.TimeoutSeconds);
+        })
+        .AddHttpMessageHandler<BearerTokenHandler>()
+        .SetHandlerLifetime(TimeSpan.FromMinutes(httpSettings.LifeTime))
+        .AddPolicyHandler((sp, _) =>
+        {
+            var inner = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;
+
             return HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(
-
-                retryCount: httpSettings.RetryCount,
+                retryCount: inner.RetryCount,
                 sleepDurationProvider: attempt =>
-                TimeSpan.FromMilliseconds(httpSettings.SleepDuration * attempt));
+                TimeSpan.FromMilliseconds(inner.SleepDuration * attempt));
         });
 
         return services;

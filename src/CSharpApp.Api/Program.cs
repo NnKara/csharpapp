@@ -1,4 +1,5 @@
 using CSharpApp.Application.Helpers;
+using CSharpApp.Api.Configuration;
 using CSharpApp.Core.Dtos.Product;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseGlobalExceptionHandling();
 
 //app.UseHttpsRedirection();
 

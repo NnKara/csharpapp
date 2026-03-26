@@ -81,4 +81,24 @@ versionedEndpointRouteBuilder.MapGet("api/v{version:apiVersion}/getcategories", 
 .WithName("GetCategories")
 .HasApiVersion(1.0);
 
+versionedEndpointRouteBuilder.MapGet("api/v{version:apiVersion}/getcategory/{id:int}", async (int id, ICategoriesService categoriesService,
+        CancellationToken cancellationToken) =>
+{
+    if (id <= 0)
+        return Results.BadRequest(new { message = "ID must be greater than 0" });
+
+    var category = await categoriesService.GetByIdAsync(id, cancellationToken);
+
+    if (category is null)
+        return Results.NotFound();
+
+    return Results.Ok(category);
+})
+    .WithName("GetCategory")
+    .HasApiVersion(1.0);
+
+
+
+
 app.Run();
+

@@ -1,6 +1,7 @@
 ﻿using CSharpApp.Application.Interfaces.Categories;
 using CSharpApp.Core.Dtos.Category;
 using Microsoft.Extensions.Options;
+using System.Net;
 using System.Text.Json;
 
 namespace CSharpApp.Infrastructure.Categories
@@ -25,6 +26,20 @@ namespace CSharpApp.Infrastructure.Categories
             var categories = JsonSerializer.Deserialize<List<Category>>(content) ?? [];
 
             return categories.AsReadOnly();
+        }
+
+        public async Task<Category?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var url = $"{_restApiSettings.Categories}/{id}";
+            var response = await _httpClient.GetAsync(url, cancellationToken);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
+
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            return JsonSerializer.Deserialize<Category>(content);
         }
     }
 }

@@ -8,7 +8,13 @@ Accept: application/json
 
 ###
 
+//GetById (excpected 200 if exists)
 GET {{HostAddress}}/api/{{Version}}/getproduct/17
+Accept: application/json
+
+###
+//GetById (excpected 502 bad request)
+GET {{HostAddress}}/api/{{Version}}/getproduct/1712312
 Accept: application/json
 
 ###
@@ -58,8 +64,20 @@ Accept: application/json
 
 //Category API Tests  
 
-
+//GetAll (excpected 200)
 GET {{HostAddress}}/api/{{Version}}/getcategories
+Accept: application/json
+
+###
+
+//GetById (excpected 200 if exists)
+GET {{HostAddress}}/api/{{Version}}/getcategory/1
+Accept: application/json
+
+
+###
+//GetById (excpected 502 bad request)
+GET {{HostAddress}}/api/{{Version}}/getcategory/12391231
 Accept: application/json
 
 ###

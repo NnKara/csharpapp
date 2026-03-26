@@ -17,5 +17,10 @@ namespace CSharpApp.Infrastructure.Categories
         {
             return _categoriesApiClient.GetAllAsync(cancellationToken);
         }
+
+        public Task<Category?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        {
+            return _categoriesApiClient.GetByIdAsync(id, cancellationToken);
+        }
     }
 }

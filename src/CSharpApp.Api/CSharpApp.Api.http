@@ -1,6 +1,8 @@
 @HostAddress = http://localhost:5225
 @Version = v1
 
+//Product API Tests
+
 GET {{HostAddress}}/api/{{Version}}/getproducts
 Accept: application/json
 
@@ -51,3 +53,13 @@ Accept: application/json
   "images": ["   "]
 }
 
+
+###
+
+//Category API Tests  
+
+
+GET {{HostAddress}}/api/{{Version}}/getcategories
+Accept: application/json
+
+###

@@ -1,6 +1,8 @@
 using CSharpApp.Api.Configuration;
 using CSharpApp.Api.PerformanceMiddleware;
 using CSharpApp.Application.Helpers;
+using CSharpApp.Application.Interfaces.Categories;
+using CSharpApp.Application.Interfaces.Products;
 using CSharpApp.Core.Dtos.Product;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,7 +38,7 @@ var versionedEndpointRouteBuilder = app.NewVersionedApi();
 versionedEndpointRouteBuilder.MapGet("api/v{version:apiVersion}/getproducts", async (IProductsService productsService) =>
     {
         var products = await productsService.GetAllAsync();
-        return products;
+        return Results.Ok(products);
     })
     .WithName("GetProducts")
     .HasApiVersion(1.0);
@@ -70,5 +72,13 @@ versionedEndpointRouteBuilder.MapPost("api/v{version:apiVersion}/createproduct",
 })
     .WithName("CreateProduct")
     .HasApiVersion(1.0);
+
+versionedEndpointRouteBuilder.MapGet("api/v{version:apiVersion}/getcategories", async (ICategoriesService categoriesService) =>
+{
+    var categories = await categoriesService.GetAllAsync();
+    return Results.Ok(categories);
+})
+.WithName("GetCategories")
+.HasApiVersion(1.0);
 
 app.Run();

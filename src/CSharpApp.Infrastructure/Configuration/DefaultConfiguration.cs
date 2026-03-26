@@ -1,3 +1,7 @@
+using CSharpApp.Application.Interfaces.Categories;
+using CSharpApp.Application.Interfaces.Products;
+using CSharpApp.Infrastructure.Categories;
+
 namespace CSharpApp.Infrastructure.Configuration;
 
 public static class DefaultConfiguration
@@ -9,7 +13,8 @@ public static class DefaultConfiguration
         services.Configure<HttpClientSettings>(configuration.GetSection(nameof(HttpClientSettings)));
 
         services.AddScoped<IProductsService, ProductsService>();
-        
+        services.AddScoped<ICategoriesService, CategoriesService>();
+
         return services;
     }
 }

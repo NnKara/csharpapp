@@ -1,3 +1,6 @@
+using CSharpApp.Application.Interfaces.Categories;
+using CSharpApp.Application.Interfaces.Products;
+using CSharpApp.Infrastructure.Categories;
 using CSharpApp.Infrastructure.JwtAuth;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -44,6 +47,27 @@ public static class HttpConfiguration
                 TimeSpan.FromMilliseconds(inner.SleepDuration * attempt));
         });
 
+        services.AddHttpClient<ICategoriesApiClient, CategoriesApiClient>((sp, client) =>
+        {
+            var httpSettings = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;
+            var restApiSettings = sp.GetRequiredService<IOptions<RestApiSettings>>().Value;
+
+            client.BaseAddress = new Uri(restApiSettings.BaseUrl!);
+            client.Timeout = TimeSpan.FromSeconds(httpSettings.TimeoutSeconds);
+        })
+        .AddHttpMessageHandler<BearerTokenHandler>()
+        .SetHandlerLifetime(handlerLifetime)
+        .AddPolicyHandler((sp, _) =>
+        {
+            var inner = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;
+
+            return HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(
+                retryCount: inner.RetryCount,
+                sleepDurationProvider: attempt =>
+                TimeSpan.FromMilliseconds(inner.SleepDuration * attempt));
+        });
+
         return services;
     }
+
 }

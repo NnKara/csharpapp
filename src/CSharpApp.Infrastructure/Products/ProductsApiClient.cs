@@ -1,4 +1,5 @@
-﻿using CSharpApp.Core.Dtos.Product;
+﻿using CSharpApp.Application.Interfaces.Products;
+using CSharpApp.Core.Dtos.Product;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Http.Json;

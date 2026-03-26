@@ -1,5 +1,6 @@
 namespace CSharpApp.Infrastructure.Products;
 
+using CSharpApp.Application.Interfaces.Products;
 using CSharpApp.Core.Dtos.Product;
 
 public class ProductsService : IProductsService

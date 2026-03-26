@@ -1,6 +1,6 @@
 ﻿using CSharpApp.Core.Dtos.Product;
 
-namespace CSharpApp.Application.Interfaces
+namespace CSharpApp.Application.Interfaces.Products
 {
     public interface IProductsApiClient
     {

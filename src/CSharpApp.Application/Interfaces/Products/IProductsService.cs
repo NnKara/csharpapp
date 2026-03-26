@@ -1,4 +1,4 @@
-namespace CSharpApp.Application.Interfaces;
+namespace CSharpApp.Application.Interfaces.Products;
 
 using CSharpApp.Core.Dtos.Product;
 

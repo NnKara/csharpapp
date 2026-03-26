@@ -9,27 +9,31 @@ public static class HttpConfiguration
 {
     public static IServiceCollection AddHttpConfiguration(this IServiceCollection services)
     {
-        var serviceProvider = services.BuildServiceProvider();
-        var httpSettings = serviceProvider.GetRequiredService<IOptions<HttpClientSettings>>().Value;
-        var restApiSettings = serviceProvider.GetRequiredService<IOptions<RestApiSettings>>().Value;
+        var handlerLifetime = TimeSpan.FromMinutes(10);
 
-        services.AddHttpClient(ExternalApiHttpClients.AuthOnly,(_, client) =>
+        services.AddHttpClient(ExternalApiHttpClients.AuthOnly,(sp, client) =>
         {
+            var httpSettings = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;
+            var restApiSettings = sp.GetRequiredService<IOptions<RestApiSettings>>().Value;
+
             client.BaseAddress = new Uri(restApiSettings.BaseUrl!);
             client.Timeout = TimeSpan.FromSeconds(httpSettings.TimeoutSeconds);
         })
-        .SetHandlerLifetime(TimeSpan.FromMinutes(httpSettings.LifeTime));
+        .SetHandlerLifetime(handlerLifetime);
 
         services.AddSingleton<IAuthTokenProvider, AuthTokenProvider>();
         services.AddTransient<BearerTokenHandler>();
 
-        services.AddHttpClient<IProductsApiClient, ProductsApiClient>((_, client) =>
+        services.AddHttpClient<IProductsApiClient, ProductsApiClient>((sp, client) =>
         {
+            var httpSettings = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;
+            var restApiSettings = sp.GetRequiredService<IOptions<RestApiSettings>>().Value;
+
             client.BaseAddress = new Uri(restApiSettings.BaseUrl!);
             client.Timeout = TimeSpan.FromSeconds(httpSettings.TimeoutSeconds);
         })
         .AddHttpMessageHandler<BearerTokenHandler>()
-        .SetHandlerLifetime(TimeSpan.FromMinutes(httpSettings.LifeTime))
+        .SetHandlerLifetime(handlerLifetime)
         .AddPolicyHandler((sp, _) =>
         {
             var inner = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;

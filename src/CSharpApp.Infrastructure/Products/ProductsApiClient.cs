@@ -47,12 +47,12 @@ namespace CSharpApp.Infrastructure.Products
             response.EnsureSuccessStatusCode();
 
             var productContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var createdProdcut = JsonSerializer.Deserialize<Product>(productContent);
+            var createdProduct = JsonSerializer.Deserialize<Product>(productContent);
 
-            if (createdProdcut is null)
+            if (createdProduct is null)
                 throw new InvalidOperationException("Product response could not be parsed.");
 
-            return createdProdcut;
+            return createdProduct;
         }
     }
 }

@@ -3,6 +3,7 @@ using CSharpApp.Api.PerformanceMiddleware;
 using CSharpApp.Application.Helpers;
 using CSharpApp.Application.Interfaces.Categories;
 using CSharpApp.Application.Interfaces.Products;
+using CSharpApp.Core.Dtos.Category;
 using CSharpApp.Core.Dtos.Product;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -97,6 +98,22 @@ versionedEndpointRouteBuilder.MapGet("api/v{version:apiVersion}/getcategory/{id:
     .WithName("GetCategory")
     .HasApiVersion(1.0);
 
+
+versionedEndpointRouteBuilder.MapPost("api/v{version:apiVersion}/createcategory",async (CreateCategoryRequest request, 
+    ICategoriesService categoriesService, 
+    CancellationToken ct) =>
+    {
+
+        var errors = CreateCategoryRequestValidator.ValidateCreateCategoryReq(request);
+
+        if (errors.Count > 0)
+            return Results.BadRequest(new { errors });
+
+        var created = await categoriesService.CreateAsync(request, ct);
+        return Results.Ok(created);
+    })
+    .WithName("CreateCategory")
+    .HasApiVersion(1.0);
 
 
 

@@ -2,6 +2,7 @@
 using CSharpApp.Core.Dtos.Category;
 using Microsoft.Extensions.Options;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace CSharpApp.Infrastructure.Categories
@@ -40,6 +41,21 @@ namespace CSharpApp.Infrastructure.Categories
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
 
             return JsonSerializer.Deserialize<Category>(content);
+        }
+
+        public async Task<Category> CreateAsync(CreateCategoryRequest request, CancellationToken cancellationToken = default)
+        {
+            var response = await _httpClient.PostAsJsonAsync(_restApiSettings.Categories, request, cancellationToken);
+
+            response.EnsureSuccessStatusCode();
+
+            var categoryContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            var createdCategory = JsonSerializer.Deserialize<Category>(categoryContent);
+
+            if (createdCategory is null)
+                throw new InvalidOperationException("Category response could not be parsed.");
+
+            return createdCategory;
         }
     }
 }

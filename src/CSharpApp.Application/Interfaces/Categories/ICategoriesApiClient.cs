@@ -1,5 +1,4 @@
 ﻿using CSharpApp.Core.Dtos.Category;
-using CSharpApp.Core.Dtos.Product;
 
 namespace CSharpApp.Application.Interfaces.Categories
 {
@@ -8,5 +7,7 @@ namespace CSharpApp.Application.Interfaces.Categories
         Task<IReadOnlyCollection<Category>> GetAllAsync(CancellationToken cancellationToken = default);
 
         Task<Category?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+
+        Task<Category> CreateAsync(CreateCategoryRequest request, CancellationToken cancellationToken = default);
     }
 }

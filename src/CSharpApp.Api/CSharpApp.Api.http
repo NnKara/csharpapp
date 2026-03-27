@@ -18,7 +18,7 @@ GET {{HostAddress}}/api/{{Version}}/getproduct/1712312
 Accept: application/json
 
 ###
-//Valid create (excpected 200)
+//Valid create (expected 200 if not exists / 502 if exists cause of dublication)
 
 POST {{HostAddress}}/api/{{Version}}/createproduct
 Content-Type: application/json
@@ -80,4 +80,22 @@ Accept: application/json
 GET {{HostAddress}}/api/{{Version}}/getcategory/12391231
 Accept: application/json
 
+###
+//Valid create (expected 200 if not exists / 502 if exists cause of dublication)
+POST {{HostAddress}}/api/{{Version}}/createcategory
+Content-Type: application/json
+Accept: application/json
+{
+  "name": "Books",
+  "image": "https://api.lorem.space/image/book?w=150&h=220"
+}
+###
+//Invalid create (expected 400 with field errors)
+POST {{HostAddress}}/api/{{Version}}/createcategory
+Content-Type: application/json
+Accept: application/json
+{
+  "name": "",
+  "image": ""
+}
 ###

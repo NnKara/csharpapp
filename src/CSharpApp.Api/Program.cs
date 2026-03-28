@@ -1,11 +1,6 @@
 using CSharpApp.Api;
 using CSharpApp.Api.Configuration;
 using CSharpApp.Api.PerformanceMiddleware;
-using CSharpApp.Application.Helpers;
-using CSharpApp.Application.Interfaces.Categories;
-using CSharpApp.Application.Interfaces.Products;
-using CSharpApp.Core.Dtos.Category;
-using CSharpApp.Core.Dtos.Product;
 
 var builder = WebApplication.CreateBuilder(args);
 

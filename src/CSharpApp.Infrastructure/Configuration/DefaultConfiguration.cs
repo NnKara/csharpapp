@@ -16,9 +16,6 @@ public static class DefaultConfiguration
 
         services.AddScoped<ICategoriesService, CategoriesService>();
 
-        services.AddScoped<ICategoriesQueryService, CategoriesQueryService>();
-        services.AddScoped<ICategoriesCommandService, CategoriesCommandService>();
-
         return services;
     }
 }

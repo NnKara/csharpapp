@@ -1,5 +1,7 @@
 using CSharpApp.Application.Interfaces.Categories;
 using CSharpApp.Application.Helpers;
+using CSharpApp.Application.Categories.Commands;
+using CSharpApp.Application.Categories.Queries;
 using CSharpApp.Application.Products.Commands;
 using CSharpApp.Application.Products.Queries;
 using CSharpApp.Core.Dtos.Category;
@@ -15,6 +17,7 @@ namespace CSharpApp.Api
             var versioned = app.NewVersionedApi();
 
 
+            //getAllProducts
             versioned.MapGet("api/v{version:apiVersion}/getproducts", async (ISender mediator, CancellationToken ct) =>
             {
                 var products = await mediator.Send(new GetAllProductsQuery(), ct);
@@ -24,6 +27,7 @@ namespace CSharpApp.Api
                 .HasApiVersion(1.0);
 
 
+            //GetProductById
             versioned.MapGet("api/v{version:apiVersion}/getproduct/{id:int}", async (int id, ISender mediator, CancellationToken ct) =>
             {
                 var product = await mediator.Send(new GetProductByIdQuery(id), ct);
@@ -35,6 +39,7 @@ namespace CSharpApp.Api
                 .HasApiVersion(1.0);
 
 
+            //CreateProduct
             versioned.MapPost("api/v{version:apiVersion}/createproduct", async (CreateProductRequest request, ISender mediator, CancellationToken ct) =>
             {
                 var created = await mediator.Send(new CreateProductCommand(request), ct);
@@ -44,21 +49,22 @@ namespace CSharpApp.Api
                 .HasApiVersion(1.0);
 
 
-            versioned.MapGet("api/v{version:apiVersion}/getcategories", async (ICategoriesQueryService categoriesQueryService) =>
+
+            //GetAllCategories
+            versioned.MapGet("api/v{version:apiVersion}/getcategories", async (ISender mediator, CancellationToken ct) =>
             {
-                var categories = await categoriesQueryService.GetAllAsync();
+                var categories = await mediator.Send(new GetAllCategoriesQuery(), ct);
                 return Results.Ok(categories);
             })
                 .WithName("GetCategories")
                 .HasApiVersion(1.0);
 
 
-            versioned.MapGet("api/v{version:apiVersion}/getcategory/{id:int}", async (int id, ICategoriesQueryService categoriesQueryService,
-                    CancellationToken cancellationToken) =>
+
+            //GetCategoryById
+            versioned.MapGet("api/v{version:apiVersion}/getcategory/{id:int}", async (int id, ISender mediator, CancellationToken ct) =>
             {
-                if (id <= 0)
-                    return Results.BadRequest(new { message = "ID must be greater than 0" });
-                var category = await categoriesQueryService.GetByIdAsync(id, cancellationToken);
+                var category = await mediator.Send(new GetCategoryByIdQuery(id), ct);
                 if (category is null)
                     return Results.NotFound();
                 return Results.Ok(category);
@@ -67,14 +73,11 @@ namespace CSharpApp.Api
                 .HasApiVersion(1.0);
 
 
-            versioned.MapPost("api/v{version:apiVersion}/createcategory", async (CreateCategoryRequest request,
-                    ICategoriesCommandService categoriesCommandService,
-                    CancellationToken ct) =>
+
+            //CreateCategory
+            versioned.MapPost("api/v{version:apiVersion}/createcategory", async (CreateCategoryRequest request, ISender mediator, CancellationToken ct) =>
             {
-                var errors = CreateCategoryRequestValidator.ValidateCreateCategoryReq(request);
-                if (errors.Count > 0)
-                    return Results.BadRequest(new { errors });
-                var created = await categoriesCommandService.CreateAsync(request, ct);
+                var created = await mediator.Send(new CreateCategoryCommand(request), ct);
                 return Results.Ok(created);
             })
                 .WithName("CreateCategory")

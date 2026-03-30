@@ -50,21 +50,21 @@ namespace CSharpApp.Api
                 .HasApiVersion(1.0);
 
 
-            versioned.MapGet("api/v{version:apiVersion}/getcategories", async (ICategoriesService categoriesService) =>
+            versioned.MapGet("api/v{version:apiVersion}/getcategories", async (ICategoriesQueryService categoriesQueryService) =>
             {
-                var categories = await categoriesService.GetAllAsync();
+                var categories = await categoriesQueryService.GetAllAsync();
                 return Results.Ok(categories);
             })
                 .WithName("GetCategories")
                 .HasApiVersion(1.0);
 
 
-            versioned.MapGet("api/v{version:apiVersion}/getcategory/{id:int}", async (int id, ICategoriesService categoriesService,
+            versioned.MapGet("api/v{version:apiVersion}/getcategory/{id:int}", async (int id, ICategoriesQueryService categoriesQueryService,
                     CancellationToken cancellationToken) =>
             {
                 if (id <= 0)
                     return Results.BadRequest(new { message = "ID must be greater than 0" });
-                var category = await categoriesService.GetByIdAsync(id, cancellationToken);
+                var category = await categoriesQueryService.GetByIdAsync(id, cancellationToken);
                 if (category is null)
                     return Results.NotFound();
                 return Results.Ok(category);
@@ -74,13 +74,13 @@ namespace CSharpApp.Api
 
 
             versioned.MapPost("api/v{version:apiVersion}/createcategory", async (CreateCategoryRequest request,
-                    ICategoriesService categoriesService,
+                    ICategoriesCommandService categoriesCommandService,
                     CancellationToken ct) =>
             {
                 var errors = CreateCategoryRequestValidator.ValidateCreateCategoryReq(request);
                 if (errors.Count > 0)
                     return Results.BadRequest(new { errors });
-                var created = await categoriesService.CreateAsync(request, ct);
+                var created = await categoriesCommandService.CreateAsync(request, ct);
                 return Results.Ok(created);
             })
                 .WithName("CreateCategory")

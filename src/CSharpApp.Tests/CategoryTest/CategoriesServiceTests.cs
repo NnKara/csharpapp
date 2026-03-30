@@ -16,6 +16,8 @@ namespace CSharpApp.Tests.CategoryTest
             var result = await service.GetAllAsync();
             Assert.Same(expectedCategories, result);
         }
+
+
         [Fact]
         public async Task GetCategoryById()
         {
@@ -25,6 +27,8 @@ namespace CSharpApp.Tests.CategoryTest
             var result = await service.GetByIdAsync(3);
             Assert.Same(expectedCategory, result);
         }
+
+
         [Fact]
         public async Task CreateCategory()
         {
@@ -39,6 +43,8 @@ namespace CSharpApp.Tests.CategoryTest
             var result = await service.CreateAsync(request);
             Assert.Same(expectedCategory, result);
         }
+
+
         private sealed class MockCategoriesApiClient : ICategoriesApiClient
         {
             public IReadOnlyCollection<Category> GetAllResult { get; set; } = Array.Empty<Category>();

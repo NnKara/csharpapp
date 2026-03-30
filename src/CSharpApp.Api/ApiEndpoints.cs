@@ -13,21 +13,21 @@ namespace CSharpApp.Api
             var versioned = app.NewVersionedApi();
 
 
-            versioned.MapGet("api/v{version:apiVersion}/getproducts", async (IProductsService productsService) =>
+            versioned.MapGet("api/v{version:apiVersion}/getproducts", async (IProductsQueryService productsQueryService) =>
             {
-                var products = await productsService.GetAllAsync();
+                var products = await productsQueryService.GetAllAsync();
                 return Results.Ok(products);
             })
                 .WithName("GetProducts")
                 .HasApiVersion(1.0);
 
 
-            versioned.MapGet("api/v{version:apiVersion}/getproduct/{id:int}", async (int id, IProductsService productsService,
+            versioned.MapGet("api/v{version:apiVersion}/getproduct/{id:int}", async (int id, IProductsQueryService productsQueryService,
                     CancellationToken cancellationToken) =>
             {
                 if (id <= 0)
                     return Results.BadRequest(new { message = "ID must be greater than 0" });
-                var product = await productsService.GetByIdAsync(id, cancellationToken);
+                var product = await productsQueryService.GetByIdAsync(id, cancellationToken);
                 if (product is null)
                     return Results.NotFound();
                 return Results.Ok(product);
@@ -37,13 +37,13 @@ namespace CSharpApp.Api
 
 
             versioned.MapPost("api/v{version:apiVersion}/createproduct", async (CreateProductRequest request,
-                    IProductsService productsService,
+                    IProductsCommandService productsCommandService,
                     CancellationToken cancellationToken) =>
             {
                 var errors = CreateProductRequestValidator.ValidateCreateProdReq(request);
                 if (errors.Count > 0)
                     return Results.BadRequest(new { errors });
-                var created = await productsService.CreateAsync(request, cancellationToken);
+                var created = await productsCommandService.CreateAsync(request, cancellationToken);
                 return Results.Ok(created);
             })
                 .WithName("CreateProduct")

@@ -13,6 +13,10 @@ public static class DefaultConfiguration
         services.Configure<HttpClientSettings>(configuration.GetSection(nameof(HttpClientSettings)));
 
         services.AddScoped<IProductsService, ProductsService>();
+
+        services.AddScoped<IProductsQueryService, ProductsQueryService>();
+        services.AddScoped<IProductsCommandService, ProductsCommandService>();
+
         services.AddScoped<ICategoriesService, CategoriesService>();
 
         return services;

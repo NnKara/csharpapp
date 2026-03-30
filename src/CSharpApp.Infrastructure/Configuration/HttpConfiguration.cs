@@ -10,17 +10,20 @@ namespace CSharpApp.Infrastructure.Configuration;
 
 public static class HttpConfiguration
 {
-    public static IServiceCollection AddHttpConfiguration(this IServiceCollection services)
+    public static IServiceCollection AddHttpConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
-        var handlerLifetime = TimeSpan.FromMinutes(10);
 
-        services.AddHttpClient(ExternalApiHttpClients.AuthOnly,(sp, client) =>
+        var httpClientSettings = configuration.GetSection(nameof(HttpClientSettings))
+                                 .Get<HttpClientSettings>() ?? new HttpClientSettings();     
+
+        var handlerLifetime = TimeSpan.FromMinutes(httpClientSettings.LifeTime);
+
+        services.AddHttpClient(ExternalApiHttpClients.AuthOnly, (sp, client) =>
         {
-            var httpSettings = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;
             var restApiSettings = sp.GetRequiredService<IOptions<RestApiSettings>>().Value;
 
             client.BaseAddress = new Uri(restApiSettings.BaseUrl!);
-            client.Timeout = TimeSpan.FromSeconds(httpSettings.TimeoutSeconds);
+            client.Timeout = TimeSpan.FromSeconds(httpClientSettings.TimeoutSeconds);
         })
         .SetHandlerLifetime(handlerLifetime);
 
@@ -29,43 +32,33 @@ public static class HttpConfiguration
 
         services.AddHttpClient<IProductsApiClient, ProductsApiClient>((sp, client) =>
         {
-            var httpSettings = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;
             var restApiSettings = sp.GetRequiredService<IOptions<RestApiSettings>>().Value;
 
             client.BaseAddress = new Uri(restApiSettings.BaseUrl!);
-            client.Timeout = TimeSpan.FromSeconds(httpSettings.TimeoutSeconds);
+            client.Timeout = TimeSpan.FromSeconds(httpClientSettings.TimeoutSeconds);
         })
         .AddHttpMessageHandler<BearerTokenHandler>()
         .SetHandlerLifetime(handlerLifetime)
-        .AddPolicyHandler((sp, _) =>
-        {
-            var inner = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;
-
-            return HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(
-                retryCount: inner.RetryCount,
+        .AddPolicyHandler((_, _) =>
+            HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(
+                retryCount: httpClientSettings.RetryCount,
                 sleepDurationProvider: attempt =>
-                TimeSpan.FromMilliseconds(inner.SleepDuration * attempt));
-        });
+                    TimeSpan.FromMilliseconds(httpClientSettings.SleepDuration * attempt)));
 
         services.AddHttpClient<ICategoriesApiClient, CategoriesApiClient>((sp, client) =>
         {
-            var httpSettings = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;
             var restApiSettings = sp.GetRequiredService<IOptions<RestApiSettings>>().Value;
 
             client.BaseAddress = new Uri(restApiSettings.BaseUrl!);
-            client.Timeout = TimeSpan.FromSeconds(httpSettings.TimeoutSeconds);
+            client.Timeout = TimeSpan.FromSeconds(httpClientSettings.TimeoutSeconds);
         })
         .AddHttpMessageHandler<BearerTokenHandler>()
         .SetHandlerLifetime(handlerLifetime)
-        .AddPolicyHandler((sp, _) =>
-        {
-            var inner = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;
-
-            return HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(
-                retryCount: inner.RetryCount,
+        .AddPolicyHandler((_, _) =>
+            HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(
+                retryCount: httpClientSettings.RetryCount,
                 sleepDurationProvider: attempt =>
-                TimeSpan.FromMilliseconds(inner.SleepDuration * attempt));
-        });
+                    TimeSpan.FromMilliseconds(httpClientSettings.SleepDuration * attempt)));
 
         return services;
     }

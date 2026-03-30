@@ -1,9 +1,8 @@
-﻿using CSharpApp.Application.Interfaces.Categories;
+using CSharpApp.Application.Interfaces.Categories;
 using CSharpApp.Core.Dtos.Category;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace CSharpApp.Infrastructure.Categories
 {
@@ -23,8 +22,7 @@ namespace CSharpApp.Infrastructure.Categories
 
             response.EnsureSuccessStatusCode();
 
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            var categories = JsonSerializer.Deserialize<List<Category>>(content) ?? [];
+            var categories = await response.Content.ReadFromJsonAsync<List<Category>>(cancellationToken) ?? [];
 
             return categories.AsReadOnly();
         }
@@ -38,9 +36,8 @@ namespace CSharpApp.Infrastructure.Categories
                 return null;
 
             response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
 
-            return JsonSerializer.Deserialize<Category>(content);
+            return await response.Content.ReadFromJsonAsync<Category>(cancellationToken);
         }
 
         public async Task<Category> CreateAsync(CreateCategoryRequest request, CancellationToken cancellationToken = default)
@@ -49,8 +46,7 @@ namespace CSharpApp.Infrastructure.Categories
 
             response.EnsureSuccessStatusCode();
 
-            var categoryContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var createdCategory = JsonSerializer.Deserialize<Category>(categoryContent);
+            var createdCategory = await response.Content.ReadFromJsonAsync<Category>(cancellationToken);
 
             if (createdCategory is null)
                 throw new InvalidOperationException("Category response could not be parsed.");

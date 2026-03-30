@@ -1,9 +1,8 @@
-﻿using CSharpApp.Application.Interfaces.Products;
+using CSharpApp.Application.Interfaces.Products;
 using CSharpApp.Core.Dtos.Product;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace CSharpApp.Infrastructure.Products
 {
@@ -20,8 +19,7 @@ namespace CSharpApp.Infrastructure.Products
         {
             var response = await _httpClient.GetAsync(_restApiSettings.Products, cancellationToken);
             response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            var products = JsonSerializer.Deserialize<List<Product>>(content) ?? [];
+            var products = await response.Content.ReadFromJsonAsync<List<Product>>(cancellationToken) ?? [];
             return products.AsReadOnly();
         }
 
@@ -34,9 +32,8 @@ namespace CSharpApp.Infrastructure.Products
                 return null;
 
             response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
 
-            return JsonSerializer.Deserialize<Product>(content);
+            return await response.Content.ReadFromJsonAsync<Product>(cancellationToken);
         }
 
 
@@ -46,8 +43,7 @@ namespace CSharpApp.Infrastructure.Products
 
             response.EnsureSuccessStatusCode();
 
-            var productContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var createdProduct = JsonSerializer.Deserialize<Product>(productContent);
+            var createdProduct = await response.Content.ReadFromJsonAsync<Product>(cancellationToken);
 
             if (createdProduct is null)
                 throw new InvalidOperationException("Product response could not be parsed.");

@@ -1,5 +1,3 @@
-using CSharpApp.Application.Interfaces.Categories;
-using CSharpApp.Application.Helpers;
 using CSharpApp.Application.Categories.Commands;
 using CSharpApp.Application.Categories.Queries;
 using CSharpApp.Application.Products.Commands;
@@ -7,6 +5,7 @@ using CSharpApp.Application.Products.Queries;
 using CSharpApp.Core.Dtos.Category;
 using CSharpApp.Core.Dtos.Product;
 using MediatR;
+using FluentValidation;
 
 namespace CSharpApp.Api
 {
@@ -40,8 +39,16 @@ namespace CSharpApp.Api
 
 
             //CreateProduct
-            versioned.MapPost("api/v{version:apiVersion}/createproduct", async (CreateProductRequest request, ISender mediator, CancellationToken ct) =>
+            versioned.MapPost("api/v{version:apiVersion}/createproduct", async (CreateProductRequest request, ISender mediator, IValidator<CreateProductRequest> validator, CancellationToken ct) =>
             {
+                var result = await validator.ValidateAsync(request, ct);
+
+                if (!result.IsValid)
+                {
+                    var errors = result.Errors.Select(e => e.ErrorMessage).ToArray();
+                    return Results.BadRequest(errors);
+                }
+
                 var created = await mediator.Send(new CreateProductCommand(request), ct);
                 return Results.Ok(created);
             })
@@ -75,8 +82,16 @@ namespace CSharpApp.Api
 
 
             //CreateCategory
-            versioned.MapPost("api/v{version:apiVersion}/createcategory", async (CreateCategoryRequest request, ISender mediator, CancellationToken ct) =>
+            versioned.MapPost("api/v{version:apiVersion}/createcategory", async (CreateCategoryRequest request, ISender mediator, IValidator<CreateCategoryRequest> validator, CancellationToken ct) =>
             {
+                var result = await validator.ValidateAsync(request, ct);
+
+                if (!result.IsValid)
+                {
+                    var errors = result.Errors.Select(e => e.ErrorMessage).ToArray();
+                    return Results.BadRequest(errors);
+                }
+
                 var created = await mediator.Send(new CreateCategoryCommand(request), ct);
                 return Results.Ok(created);
             })

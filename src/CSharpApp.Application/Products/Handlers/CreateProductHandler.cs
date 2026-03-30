@@ -1,4 +1,3 @@
-using CSharpApp.Application.Helpers;
 using CSharpApp.Application.Interfaces.Products;
 using CSharpApp.Application.Products.Commands;
 using CSharpApp.Core.Dtos.Product;
@@ -17,11 +16,6 @@ public sealed class CreateProductHandler : IRequestHandler<CreateProductCommand,
 
     public Task<Product> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
-        var errors = CreateProductRequestValidator.ValidateCreateProdReq(request.Request);
-
-        if (errors.Count > 0)
-            throw new ArgumentException(string.Join("; ", errors));
-
         return _productsService.CreateAsync(request.Request, cancellationToken);
     }
 }

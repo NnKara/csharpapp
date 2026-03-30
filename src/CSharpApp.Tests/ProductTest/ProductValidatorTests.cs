@@ -1,5 +1,6 @@
-﻿using CSharpApp.Application.Helpers;
+using CSharpApp.Application.Products.Commands;
 using CSharpApp.Core.Dtos.Product;
+using FluentValidation;
 
 namespace CSharpApp.Tests.ProductTest
 {
@@ -22,16 +23,17 @@ namespace CSharpApp.Tests.ProductTest
         [Fact]
         public void Validate_WhenRequestIsNull_AddsError()
         {
-            var errors = CreateProductRequestValidator.ValidateCreateProdReq(null);
-            Assert.Contains("Request body is null.", errors);
+            var validator = new CreateProductRequestValidator();
+            Assert.Throws<ArgumentNullException>(() => validator.Validate((CreateProductRequest)null!));
         }
 
 
         [Fact]
         public void Validate_WhenValid_ReturnsNoErrors()
         {
-            var errors = CreateProductRequestValidator.ValidateCreateProdReq(ValidRequest());
-            Assert.Empty(errors);
+            var validator = new CreateProductRequestValidator();
+            var result = validator.Validate(ValidRequest());
+            Assert.True(result.IsValid);
         }
 
 
@@ -40,8 +42,9 @@ namespace CSharpApp.Tests.ProductTest
         {
             var request = ValidRequest();
             request.Title = " ";
-            var errors = CreateProductRequestValidator.ValidateCreateProdReq(request);
-            Assert.Contains("Title is required.", errors);
+            var validator = new CreateProductRequestValidator();
+            var result = validator.Validate(request);
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "Title is required.");
         }
 
 
@@ -50,8 +53,9 @@ namespace CSharpApp.Tests.ProductTest
         {
             var request = ValidRequest();
             request.Description = "";
-            var errors = CreateProductRequestValidator.ValidateCreateProdReq(request);
-            Assert.Contains("Description is required.", errors);
+            var validator = new CreateProductRequestValidator();
+            var result = validator.Validate(request);
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "Description is required.");
         }
 
 
@@ -60,8 +64,9 @@ namespace CSharpApp.Tests.ProductTest
         {
             var request = ValidRequest();
             request.Price = 0;
-            var errors = CreateProductRequestValidator.ValidateCreateProdReq(request);
-            Assert.Contains("Price must be greater than 0.", errors);
+            var validator = new CreateProductRequestValidator();
+            var result = validator.Validate(request);
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "Price must be greater than 0.");
         }
 
 
@@ -70,8 +75,9 @@ namespace CSharpApp.Tests.ProductTest
         {
             var request = ValidRequest();
             request.CategoryId = -1;
-            var errors = CreateProductRequestValidator.ValidateCreateProdReq(request);
-            Assert.Contains("CategoryId must be greater than 0.", errors);
+            var validator = new CreateProductRequestValidator();
+            var result = validator.Validate(request);
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "CategoryId must be greater than 0.");
         }
 
 
@@ -80,8 +86,9 @@ namespace CSharpApp.Tests.ProductTest
         {
             var request = ValidRequest();
             request.Images = [];
-            var errors = CreateProductRequestValidator.ValidateCreateProdReq(request);
-            Assert.Contains("At least one image is required.", errors);
+            var validator = new CreateProductRequestValidator();
+            var result = validator.Validate(request);
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "At least one image is required.");
         }
 
 
@@ -90,8 +97,9 @@ namespace CSharpApp.Tests.ProductTest
         {
             var request = ValidRequest();
             request.Images = ["imageURL", "   "];
-            var errors = CreateProductRequestValidator.ValidateCreateProdReq(request);
-            Assert.Contains("Images cannot contain empty values.", errors);
+            var validator = new CreateProductRequestValidator();
+            var result = validator.Validate(request);
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "Images cannot contain empty values.");
         }
 
 
@@ -102,10 +110,11 @@ namespace CSharpApp.Tests.ProductTest
             req.Title = "";
             req.Price = 0;
             req.Images = [];
-            var errors = CreateProductRequestValidator.ValidateCreateProdReq(req);
-            Assert.Contains("Title is required.", errors);
-            Assert.Contains("Price must be greater than 0.", errors);
-            Assert.Contains("At least one image is required.", errors);
+            var validator = new CreateProductRequestValidator();
+            var result = validator.Validate(req);
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "Title is required.");
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "Price must be greater than 0.");
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "At least one image is required.");
         }
     }
 }

@@ -1,5 +1,6 @@
-﻿using CSharpApp.Application.Helpers;
+using CSharpApp.Application.Categories.Commands;
 using CSharpApp.Core.Dtos.Category;
+using FluentValidation;
 
 namespace CSharpApp.Tests.CategoryTest
 {
@@ -19,16 +20,18 @@ namespace CSharpApp.Tests.CategoryTest
         [Fact]
         public void Validate_WhenRequestIsNull_AddsError()
         {
-            var errors = CreateCategoryRequestValidator.ValidateCreateCategoryReq(null);
-            Assert.Contains("Request body is null.", errors);
+            var validator = new CreateCategoryRequestValidator();
+            CreateCategoryRequest? request = null;
+            Assert.Throws<ArgumentNullException>(() => validator.Validate(request!));
         }
 
 
         [Fact]
         public void Validate_WhenValid_ReturnsNoErrors()
         {
-            var errors = CreateCategoryRequestValidator.ValidateCreateCategoryReq(ValidRequest());
-            Assert.Empty(errors);
+            var validator = new CreateCategoryRequestValidator();
+            var result = validator.Validate(ValidRequest());
+            Assert.True(result.IsValid);
         }
 
 
@@ -37,8 +40,9 @@ namespace CSharpApp.Tests.CategoryTest
         {
             var request = ValidRequest();
             request.Name = " ";
-            var errors = CreateCategoryRequestValidator.ValidateCreateCategoryReq(request);
-            Assert.Contains("Name is required.", errors);
+            var validator = new CreateCategoryRequestValidator();
+            var result = validator.Validate(request);
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "Name is required.");
         }
 
 
@@ -47,8 +51,9 @@ namespace CSharpApp.Tests.CategoryTest
         {
             var request = ValidRequest();
             request.Image = " ";
-            var errors = CreateCategoryRequestValidator.ValidateCreateCategoryReq(request);
-            Assert.Contains("Image is required.", errors);
+            var validator = new CreateCategoryRequestValidator();
+            var result = validator.Validate(request);
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "Image is required.");
         }
 
 
@@ -58,9 +63,10 @@ namespace CSharpApp.Tests.CategoryTest
             var request = ValidRequest();
             request.Name = " ";
             request.Image = " ";
-            var errors = CreateCategoryRequestValidator.ValidateCreateCategoryReq(request);
-            Assert.Contains("Name is required.", errors);
-            Assert.Contains("Image is required.", errors);
+            var validator = new CreateCategoryRequestValidator();
+            var result = validator.Validate(request);
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "Name is required.");
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "Image is required.");
         }
     }
 }

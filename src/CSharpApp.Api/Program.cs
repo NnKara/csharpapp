@@ -2,6 +2,8 @@ using CSharpApp.Api;
 using CSharpApp.Api.Configuration;
 using CSharpApp.Api.PerformanceMiddleware;
 using CSharpApp.Application;
+using CSharpApp.Application.Products.Commands;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +22,7 @@ builder.Services.AddMediatR(config =>
 {
     config.RegisterServicesFromAssemblyContaining<ApplicationMarker>();
 });
-
+builder.Services.AddValidatorsFromAssemblyContaining<CreateProductRequestValidator>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

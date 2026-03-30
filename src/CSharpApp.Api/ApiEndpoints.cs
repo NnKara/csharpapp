@@ -45,8 +45,11 @@ namespace CSharpApp.Api
 
                 if (!result.IsValid)
                 {
-                    var errors = result.Errors.Select(e => e.ErrorMessage).ToArray();
-                    return Results.BadRequest(errors);
+                    var errors = result.Errors
+                        .GroupBy(e => e.PropertyName)
+                        .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray());
+
+                    return Results.ValidationProblem(errors);
                 }
 
                 var created = await mediator.Send(new CreateProductCommand(request), ct);
@@ -88,8 +91,11 @@ namespace CSharpApp.Api
 
                 if (!result.IsValid)
                 {
-                    var errors = result.Errors.Select(e => e.ErrorMessage).ToArray();
-                    return Results.BadRequest(errors);
+                    var errors = result.Errors
+                        .GroupBy(e => e.PropertyName)
+                        .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray());
+
+                    return Results.ValidationProblem(errors);
                 }
 
                 var created = await mediator.Send(new CreateCategoryCommand(request), ct);

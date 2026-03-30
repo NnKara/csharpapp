@@ -1,8 +1,10 @@
-﻿using CSharpApp.Application.Helpers;
 using CSharpApp.Application.Interfaces.Categories;
-using CSharpApp.Application.Interfaces.Products;
+using CSharpApp.Application.Helpers;
+using CSharpApp.Application.Products.Commands;
+using CSharpApp.Application.Products.Queries;
 using CSharpApp.Core.Dtos.Category;
 using CSharpApp.Core.Dtos.Product;
+using MediatR;
 
 namespace CSharpApp.Api
 {
@@ -13,21 +15,18 @@ namespace CSharpApp.Api
             var versioned = app.NewVersionedApi();
 
 
-            versioned.MapGet("api/v{version:apiVersion}/getproducts", async (IProductsQueryService productsQueryService) =>
+            versioned.MapGet("api/v{version:apiVersion}/getproducts", async (ISender mediator, CancellationToken ct) =>
             {
-                var products = await productsQueryService.GetAllAsync();
+                var products = await mediator.Send(new GetAllProductsQuery(), ct);
                 return Results.Ok(products);
             })
                 .WithName("GetProducts")
                 .HasApiVersion(1.0);
 
 
-            versioned.MapGet("api/v{version:apiVersion}/getproduct/{id:int}", async (int id, IProductsQueryService productsQueryService,
-                    CancellationToken cancellationToken) =>
+            versioned.MapGet("api/v{version:apiVersion}/getproduct/{id:int}", async (int id, ISender mediator, CancellationToken ct) =>
             {
-                if (id <= 0)
-                    return Results.BadRequest(new { message = "ID must be greater than 0" });
-                var product = await productsQueryService.GetByIdAsync(id, cancellationToken);
+                var product = await mediator.Send(new GetProductByIdQuery(id), ct);
                 if (product is null)
                     return Results.NotFound();
                 return Results.Ok(product);
@@ -36,14 +35,9 @@ namespace CSharpApp.Api
                 .HasApiVersion(1.0);
 
 
-            versioned.MapPost("api/v{version:apiVersion}/createproduct", async (CreateProductRequest request,
-                    IProductsCommandService productsCommandService,
-                    CancellationToken cancellationToken) =>
+            versioned.MapPost("api/v{version:apiVersion}/createproduct", async (CreateProductRequest request, ISender mediator, CancellationToken ct) =>
             {
-                var errors = CreateProductRequestValidator.ValidateCreateProdReq(request);
-                if (errors.Count > 0)
-                    return Results.BadRequest(new { errors });
-                var created = await productsCommandService.CreateAsync(request, cancellationToken);
+                var created = await mediator.Send(new CreateProductCommand(request), ct);
                 return Results.Ok(created);
             })
                 .WithName("CreateProduct")

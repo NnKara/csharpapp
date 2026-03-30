@@ -14,9 +14,6 @@ public static class DefaultConfiguration
 
         services.AddScoped<IProductsService, ProductsService>();
 
-        services.AddScoped<IProductsQueryService, ProductsQueryService>();
-        services.AddScoped<IProductsCommandService, ProductsCommandService>();
-
         services.AddScoped<ICategoriesService, CategoriesService>();
 
         services.AddScoped<ICategoriesQueryService, CategoriesQueryService>();

@@ -1,6 +1,7 @@
 using CSharpApp.Api;
 using CSharpApp.Api.Configuration;
 using CSharpApp.Api.PerformanceMiddleware;
+using CSharpApp.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,10 @@ builder.Services.AddHttpConfiguration();
 builder.Services.AddProblemDetails();
 builder.Services.AddApiVersioning();
 builder.Services.AddSingleton<RequestPerformanceMiddleware>();
+builder.Services.AddMediatR(config =>
+{
+    config.RegisterServicesFromAssemblyContaining<ApplicationMarker>();
+});
 
 var app = builder.Build();
 
